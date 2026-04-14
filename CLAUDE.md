@@ -6,7 +6,7 @@
 前台供使用者切換/查看圖層，後台供管理員進行圖層 CRUD 與權限管理。
 地圖渲染完全在前端透過 ArcGIS Maps SDK for JavaScript 完成。
 
-**Repo:** `gis-platform-frontend`
+**Repo:** `https://github.com/babiysqaz/GIS-frontend`
 **後端 API base URL:** 從 `VITE_API_BASE_URL` 環境變數取得
 
 ---
