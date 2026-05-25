@@ -5,4 +5,4 @@ export const login = (email: string, password: string): Promise<TokenResponse> =
   api.post('/auth/login', { email, password }).then((r) => r.data)
 
 export const refreshToken = (refreshToken: string): Promise<TokenResponse> =>
-  api.post('/auth/refresh', { refresh_token: refreshToken }).then((r) => r.data)
+  api.post('/auth/refresh', { refreshToken }).then((r) => r.data)
