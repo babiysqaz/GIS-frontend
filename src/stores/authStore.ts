@@ -22,22 +22,22 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function login(email: string, password: string): Promise<void> {
     const data = await authService.login(email, password)
-    token.value = data.access_token
-    refreshTokenValue.value = data.refresh_token
-    role.value = _decodeRole(data.access_token)
-    sessionStorage.setItem('access_token', data.access_token)
-    sessionStorage.setItem('refresh_token', data.refresh_token)
+    token.value = data.accessToken
+    refreshTokenValue.value = data.refreshToken
+    role.value = _decodeRole(data.accessToken)
+    sessionStorage.setItem('access_token', data.accessToken)
+    sessionStorage.setItem('refresh_token', data.refreshToken)
     sessionStorage.setItem('role', role.value)
   }
 
   async function refresh(): Promise<void> {
     if (!refreshTokenValue.value) return logout()
     const data = await authService.refreshToken(refreshTokenValue.value)
-    token.value = data.access_token
-    refreshTokenValue.value = data.refresh_token
-    role.value = _decodeRole(data.access_token)
-    sessionStorage.setItem('access_token', data.access_token)
-    sessionStorage.setItem('refresh_token', data.refresh_token)
+    token.value = data.accessToken
+    refreshTokenValue.value = data.refreshToken
+    role.value = _decodeRole(data.accessToken)
+    sessionStorage.setItem('access_token', data.accessToken)
+    sessionStorage.setItem('refresh_token', data.refreshToken)
     sessionStorage.setItem('role', role.value)
   }
 
