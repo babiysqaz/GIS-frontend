@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import { useLayerStore } from '@/stores/layerStore'
 import { useLayer } from '@/composables/useLayer'
 import { useMapStore } from '@/stores/mapStore'
 
 const layerStore = useLayerStore()
 const mapStore = useMapStore()
-const { toggleLayer } = useLayer(mapStore.mapView as Parameters<typeof useLayer>[0])
+const { mapView } = storeToRefs(mapStore)
+const { toggleLayer } = useLayer(mapView)
 
 function onToggle(id: number, visible: boolean) {
   toggleLayer(id, visible)

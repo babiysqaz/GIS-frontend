@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watchEffect } from 'vue'
 import { useMap } from '@/composables/useMap'
 import { useLayer } from '@/composables/useLayer'
 import { useLayerStore } from '@/stores/layerStore'
@@ -18,13 +18,12 @@ onMounted(() => {
   }
 })
 
-watch(
-  () => layerStore.layers,
-  (layers) => {
-    mapView.value?.when(() => syncLayers(layers))
-  },
-  { deep: true },
-)
+watchEffect(() => {
+  const view = mapView.value
+  const layers = layerStore.layers
+  if (!view || !layers.length) return
+  view.when(() => syncLayers(layers))
+})
 </script>
 
 <template>
