@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import PublicLayout from '@/layouts/PublicLayout.vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
@@ -7,7 +7,7 @@ import LoginPage from '@/pages/LoginPage.vue'
 import LayersPage from '@/pages/admin/LayersPage.vue'
 import LayerEditPage from '@/pages/admin/LayerEditPage.vue'
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: PublicLayout,

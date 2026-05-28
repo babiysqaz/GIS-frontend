@@ -7,6 +7,7 @@ import ConfirmDialog from 'primevue/confirmdialog'
 
 import App from './App.vue'
 import router from './router'
+// @ts-ignore: CSS module import for Vite build
 import './assets/main.css'
 
 const app = createApp(App)

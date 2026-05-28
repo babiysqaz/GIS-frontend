@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
+import { onMounted } from 'vue'
 import MapViewer from '@/components/map/MapViewer.vue'
 import LayerToggle from '@/components/map/LayerToggle.vue'
 import LayerLegend from '@/components/map/LayerLegend.vue'

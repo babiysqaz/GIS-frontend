@@ -26,7 +26,7 @@ export function useLayer(mapView: ShallowRef<MapView | null>) {
   }
 
   function toggleLayer(layerId: number, visible: boolean) {
-    const layer = mapView.value?.map.findLayerById(String(layerId))
+    const layer = mapView.value?.map?.findLayerById(String(layerId))
     if (layer) layer.visible = visible
   }
 
