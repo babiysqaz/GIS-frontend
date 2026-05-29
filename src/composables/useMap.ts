@@ -12,6 +12,9 @@ export function useMap() {
       map,
       zoom: 8,
       center: [120.9605, 23.6978],
+      popup: {
+        defaultPopupTemplateEnabled: true,  
+      },
     })
   }
 
