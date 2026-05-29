@@ -19,13 +19,13 @@ onMounted(async () => {
 <template>
   <div class="relative h-full w-full">
     <MapViewer />
-    <LayerToggle class="absolute left-4 top-4 z-10" />
+    <LayerToggle class="absolute left-4 top-24 z-10" />
     <LayerLegend class="absolute bottom-4 right-4 z-10" />
 
     <RouterLink
       v-if="authStore.isAdmin"
       to="/admin/layers"
-      class="absolute right-4 top-4 z-10 rounded-lg bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-700"
+      class="absolute right-4 top-4 z-10 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-gray-700"
     >
       管理後台
     </RouterLink>

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import type { LayerFormData } from '@/types/layer'
+import InputText from 'primevue/inputtext'
+import Textarea from 'primevue/textarea'
+import Checkbox from 'primevue/checkbox'
 
 const props = defineProps<{
   initialData?: LayerFormData
@@ -39,9 +42,8 @@ function handleSubmit() {
   <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
     <div>
       <label class="mb-1 block text-sm font-medium text-gray-700">名稱 *</label>
-      <input
+      <InputText
         v-model="form.name"
-        type="text"
         required
         class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
       />
@@ -49,7 +51,7 @@ function handleSubmit() {
 
     <div>
       <label class="mb-1 block text-sm font-medium text-gray-700">描述</label>
-      <textarea
+      <Textarea
         v-model="form.description"
         rows="2"
         class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
@@ -58,9 +60,8 @@ function handleSubmit() {
 
     <div>
       <label class="mb-1 block text-sm font-medium text-gray-700">Service URL *</label>
-      <input
+      <InputText
         v-model="form.serviceUrl"
-        type="url"
         required
         class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
         placeholder="https://services.arcgis.com/..."
@@ -104,7 +105,7 @@ function handleSubmit() {
     </div>
 
     <div class="flex items-center gap-2">
-      <input id="visible" v-model="form.visible" type="checkbox" />
+      <Checkbox inputId="visible" v-model="form.visible" binary/>
       <label for="visible" class="text-sm font-medium text-gray-700">預設顯示</label>
     </div>
 

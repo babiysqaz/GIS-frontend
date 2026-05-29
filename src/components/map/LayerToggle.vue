@@ -3,14 +3,15 @@ import { storeToRefs } from 'pinia'
 import { useLayerStore } from '@/stores/layerStore'
 import { useLayer } from '@/composables/useLayer'
 import { useMapStore } from '@/stores/mapStore'
+import Checkbox from 'primevue/checkbox'
 
 const layerStore = useLayerStore()
 const mapStore = useMapStore()
 const { mapView } = storeToRefs(mapStore)
 const { toggleLayer } = useLayer(mapView)
 
-function onToggle(id: number, visible: boolean) {
-  toggleLayer(id, visible)
+function onCheckboxChange(id: number, value: boolean) {
+  toggleLayer(id, value)
 }
 </script>
 
@@ -26,13 +27,14 @@ function onToggle(id: number, visible: boolean) {
         :key="layer.id"
         class="flex items-center gap-2 text-sm"
       >
-        <input
-          type="checkbox"
-          :checked="layer.visible"
+        <Checkbox
+          :inputId="`layer-${layer.id}`"
+          :modelValue="layer.visible"
+          @update:modelValue="onCheckboxChange(layer.id, $event)"
           class="cursor-pointer"
-          @change="onToggle(layer.id, ($event.target as HTMLInputElement).checked)"
+          binary
         />
-        <span>{{ layer.name }}</span>
+        <label :for="`layer-${layer.id}`" class="cursor-pointer text-gray-700">{{ layer.name }}</label>
       </li>
     </ul>
   </div>

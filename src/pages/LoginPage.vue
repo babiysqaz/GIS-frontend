@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import InputText from 'primevue/inputtext'
 import { useAuth } from '@/composables/useAuth'
 
 const { login } = useAuth()
 
-const email = ref('')
-const password = ref('')
+const email = ref('admin@example.com')
+const password = ref('123456')
 const errorMsg = ref('')
 const loading = ref(false)
 
@@ -29,7 +30,7 @@ async function handleSubmit() {
       <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
         <div>
           <label class="mb-1 block text-sm font-medium text-gray-700">電子郵件</label>
-          <input
+          <InputText
             v-model="email"
             type="email"
             required
@@ -39,7 +40,7 @@ async function handleSubmit() {
         </div>
         <div>
           <label class="mb-1 block text-sm font-medium text-gray-700">密碼</label>
-          <input
+          <InputText
             v-model="password"
             type="password"
             required

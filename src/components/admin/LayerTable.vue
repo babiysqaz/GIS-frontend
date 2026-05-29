@@ -32,7 +32,7 @@ function confirmDelete(layer: Layer) {
 </script>
 
 <template>
-  <div class="overflow-hidden rounded-xl bg-white shadow-sm">
+  <div class="overflow-hidden rounded-xl bg-white shadow-sm border">
     <div v-if="loading" class="p-6 text-center text-sm text-gray-500">載入中...</div>
     <div v-else-if="!layers.length" class="p-6 text-center text-sm text-gray-500">
       尚無圖層，請新增一筆。

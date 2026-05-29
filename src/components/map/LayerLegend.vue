@@ -19,7 +19,7 @@ const visibleLayers = computed(() => layerStore.layers.filter((l) => l.visible))
         class="flex items-center gap-2 text-sm"
       >
         <span class="inline-block h-3 w-3 rounded-full bg-blue-500" />
-        <span>{{ layer.name }}</span>
+        <span class="text-gray-700">{{ layer.name }}</span>
       </li>
     </ul>
   </div>
