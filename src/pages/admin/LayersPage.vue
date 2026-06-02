@@ -1,9 +1,26 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref, toRef } from 'vue'
 import { useLayerStore } from '@/stores/layerStore'
 import LayerTable from '@/components/admin/LayerTable.vue'
+import LayerTableToolbar from '@/components/admin/LayerTableToolbar.vue'
+import { useLayerTableFilters } from '@/composables/useLayerTableFilters'
 
 const layerStore = useLayerStore()
+const layerList = toRef(layerStore, 'layers')
+const {
+  search,
+  typeFilter,
+  visibleFilter,
+  filteredLayers,
+  typeOptions,
+  visibleOptions,
+} = useLayerTableFilters(layerList)
+const pageSize = ref(10)
+const pageSizeOptions = [
+  { label: '每頁 5 筆', value: 5 },
+  { label: '每頁 10 筆', value: 10 },
+  { label: '每頁 20 筆', value: 20 },
+]
 
 onMounted(() => layerStore.loadLayers())
 </script>
@@ -24,6 +41,21 @@ onMounted(() => layerStore.loadLayers())
       {{ layerStore.error }}
     </div>
 
-    <LayerTable :layers="layerStore.layers" :loading="layerStore.loading" />
+    <LayerTableToolbar
+      class="mb-4 rounded-xl"
+      :search="search"
+      :typeFilter="typeFilter"
+      :visibleFilter="visibleFilter"
+      :pageSize="pageSize"
+      :typeOptions="typeOptions"
+      :visibleOptions="visibleOptions"
+      :pageSizeOptions="pageSizeOptions"
+      @update:search="search = $event"
+      @update:typeFilter="typeFilter = $event"
+      @update:visibleFilter="visibleFilter = $event"
+      @update:pageSize="pageSize = $event"
+    />
+
+    <LayerTable :layers="filteredLayers" :loading="layerStore.loading" :pageSize="pageSize" />
   </div>
 </template>

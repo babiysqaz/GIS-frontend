@@ -1,17 +1,65 @@
 <script setup lang="ts">
+import { computed, ref, watch } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { useLayerStore } from '@/stores/layerStore'
 import type { Layer } from '@/types/layer'
 
-defineProps<{
+const props = defineProps<{
   layers: Layer[]
   loading: boolean
+  pageSize: number
 }>()
 
 const confirm = useConfirm()
 const toast = useToast()
 const layerStore = useLayerStore()
+
+const sortField = ref<'name' | 'layerType' | 'sortOrder' | 'visible' | 'opacity'>('sortOrder')
+const sortDirection = ref<'asc' | 'desc'>('asc')
+const currentPage = ref(1)
+
+const sortedLayers = computed(() => {
+  const ordered = [...props.layers]
+
+  ordered.sort((a, b) => {
+    const dir = sortDirection.value === 'asc' ? 1 : -1
+
+    switch (sortField.value) {
+      case 'name':
+        return a.name.localeCompare(b.name) * dir
+      case 'layerType':
+        return a.layerType.localeCompare(b.layerType) * dir
+      case 'sortOrder':
+        return (a.sortOrder - b.sortOrder) * dir
+      case 'visible':
+        return ((a.visible === b.visible ? 0 : a.visible ? -1 : 1) as number) * dir
+      case 'opacity':
+        return (a.opacity - b.opacity) * dir
+      default:
+        return 0
+    }
+  })
+
+  return ordered
+})
+
+const pageCount = computed(() => Math.max(1, Math.ceil(sortedLayers.value.length / props.pageSize)))
+
+watch(() => props.pageSize, () => {
+  currentPage.value = 1
+})
+
+watch(pageCount, (value) => {
+  if (currentPage.value > value) {
+    currentPage.value = value
+  }
+})
+
+const pagedLayers = computed(() => {
+  const start = (currentPage.value - 1) * props.pageSize
+  return sortedLayers.value.slice(start, start + props.pageSize)
+})
 
 function confirmDelete(layer: Layer) {
   confirm.require({
@@ -29,27 +77,66 @@ function confirmDelete(layer: Layer) {
     },
   })
 }
+
+function toggleSort(field: typeof sortField.value) {
+  if (sortField.value === field) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortField.value = field
+    sortDirection.value = 'asc'
+  }
+}
+
+function setPage(page: number) {
+  currentPage.value = Math.min(Math.max(page, 1), pageCount.value)
+}
 </script>
 
 <template>
   <div class="overflow-hidden rounded-xl bg-white shadow-sm border">
     <div v-if="loading" class="p-6 text-center text-sm text-gray-500">載入中...</div>
-    <div v-else-if="!layers.length" class="p-6 text-center text-sm text-gray-500">
-      尚無圖層，請新增一筆。
+    <div v-else-if="!props.layers.length" class="p-6 text-center text-sm text-gray-500">
+      未找到符合條件的圖層。
     </div>
+
     <table v-else class="w-full text-sm">
       <thead class="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
         <tr>
-          <th class="px-4 py-3 text-left">名稱</th>
-          <th class="px-4 py-3 text-left">類型</th>
-          <th class="px-4 py-3 text-left">排序</th>
-          <th class="px-4 py-3 text-left">可見</th>
-          <th class="px-4 py-3 text-left">透明度</th>
+          <th class="cursor-pointer px-4 py-3 text-left" @click="toggleSort('name')">
+            名稱
+            <span class="inline-block w-4 text-right">
+              <span v-if="sortField === 'name'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+            </span>
+          </th>
+          <th class="cursor-pointer px-4 py-3 text-left" @click="toggleSort('layerType')">
+            類型
+            <span class="inline-block w-4 text-right">
+              <span v-if="sortField === 'layerType'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+            </span>
+          </th>
+          <th class="cursor-pointer px-4 py-3 text-left" @click="toggleSort('sortOrder')">
+            排序
+            <span class="inline-block w-4 text-right">
+              <span v-if="sortField === 'sortOrder'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+            </span>
+          </th>
+          <th class="cursor-pointer px-4 py-3 text-left" @click="toggleSort('visible')">
+            預設顯示
+            <span class="inline-block w-4 text-right">
+              <span v-if="sortField === 'visible'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+            </span>
+          </th>
+          <th class="cursor-pointer px-4 py-3 text-left" @click="toggleSort('opacity')">
+            透明度
+            <span class="inline-block w-4 text-right">
+              <span v-if="sortField === 'opacity'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+            </span>
+          </th>
           <th class="px-4 py-3 text-right">操作</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
-        <tr v-for="layer in layers" :key="layer.id" class="hover:bg-gray-50">
+        <tr v-for="layer in pagedLayers" :key="layer.id" class="hover:bg-gray-50">
           <td class="px-4 py-3 font-medium text-gray-800">{{ layer.name }}</td>
           <td class="px-4 py-3 text-gray-500">{{ layer.layerType }}</td>
           <td class="px-4 py-3 text-gray-500">{{ layer.sortOrder }}</td>
@@ -76,6 +163,28 @@ function confirmDelete(layer: Layer) {
         </tr>
       </tbody>
     </table>
+
+    <div class="flex items-center justify-between border-t px-4 py-3 text-sm text-gray-500">
+      <div>
+        顯示 {{ pagedLayers.length }} / {{ props.layers.length }} 筆
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          class="rounded-lg border border-gray-200 bg-white px-3 py-1 text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          :disabled="currentPage === 1"
+          @click="setPage(currentPage - 1)"
+        >
+          上一頁
+        </button>
+        <button
+          class="rounded-lg border border-gray-200 bg-white px-3 py-1 text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          :disabled="currentPage === pageCount"
+          @click="setPage(currentPage + 1)"
+        >
+          下一頁
+        </button>
+      </div>
+    </div>
   </div>
 
   <ConfirmDialog />
