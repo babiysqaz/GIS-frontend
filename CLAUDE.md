@@ -338,8 +338,8 @@ export const useMapStore = defineStore('map', () => {
 
 ## PrimeVue 規範
 
-- PrimeVue 4 **unstyled mode**，搭配 Tailwind，不引入 PrimeVue 預設主題 CSS
-- 表單元件（InputText、Select、Textarea、Slider）全用 PrimeVue 元件
+- PrimeVue 4 **unstyled mode**，搭配 Tailwind
+- 盡可能的使用 PrimeVue 元件
 - 刪除確認用 `ConfirmDialog` + `useConfirm()`
 - Toast 通知用 `useToast()`，`<Toast />` 放在 `AdminLayout.vue` 根層級
 
