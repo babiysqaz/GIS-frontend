@@ -17,24 +17,34 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="relative h-full w-full">
-    <MapViewer />
-    <LayerToggle class="absolute left-4 top-24 z-10" />
-    <LayerLegend class="absolute bottom-4 right-4 z-10" />
+  <div class="flex h-full w-full overflow-hidden">
+    <aside class="w-80 min-w-[280px] border-r border-slate-200 bg-slate-50/95 p-4 shadow-sm">
+      <div class="mb-6 space-y-2">
+        <h2 class="text-lg font-semibold text-slate-900">圖層控制</h2>
+        <p class="text-sm text-slate-600">搜尋並切換左側圖層顯示，方便快速定位需要的資料。</p>
+      </div>
 
-    <RouterLink
-      v-if="authStore.isAdmin"
-      to="/admin/layers"
-      class="absolute right-4 top-4 z-10 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-gray-700"
-    >
-      管理後台
-    </RouterLink>
-    <RouterLink
-      v-else-if="!authStore.isLoggedIn"
-      to="/login"
-      class="absolute right-4 top-4 z-10 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
-    >
-      登入
-    </RouterLink>
+      <LayerToggle />
+    </aside>
+
+    <main class="relative flex-1 h-full bg-slate-100">
+      <MapViewer />
+      <LayerLegend class="absolute bottom-4 right-4 z-10" />
+
+      <RouterLink
+        v-if="authStore.isAdmin"
+        to="/admin/layers"
+        class="absolute right-4 top-4 z-10 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-gray-700"
+      >
+        管理後台
+      </RouterLink>
+      <RouterLink
+        v-else-if="!authStore.isLoggedIn"
+        to="/login"
+        class="absolute right-4 top-4 z-10 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+      >
+        登入
+      </RouterLink>
+    </main>
   </div>
 </template>
