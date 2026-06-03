@@ -38,5 +38,10 @@ export const useLayerStore = defineStore('layer', () => {
     layers.value = layers.value.filter((l) => l.id !== id)
   }
 
-  return { layers, loading, error, loadLayers, addLayer, editLayer, removeLayer }
+  function setLayerVisible(id: number, visible: boolean): void {
+    const layer = layers.value.find((l) => l.id === id)
+    if (layer) layer.visible = visible
+  }
+
+  return { layers, loading, error, loadLayers, addLayer, editLayer, removeLayer, setLayerVisible }
 })

@@ -1,3 +1,21 @@
+export interface LegendItem {
+  label?: string
+  url?: string
+  imageData?: string
+  contentType?: string
+  height?: number
+  width?: number
+}
+
+export interface LegendLayer {
+  layerId: number
+  layerName: string
+  layerType?: string
+  minScale?: number
+  maxScale?: number
+  legend: LegendItem[]
+}
+
 export interface Layer {
   id: number
   name: string
@@ -7,7 +25,7 @@ export interface Layer {
   visible: boolean
   opacity: number
   sortOrder: number
-  renderer?: Record<string, unknown>
+  legend?: LegendLayer[] | Record<string, unknown>
   createdAt: string
   updatedAt: string
 }

@@ -22,6 +22,7 @@ const filteredLayers = computed(() => {
 
 function onCheckboxChange(id: number, value: boolean) {
   toggleLayer(id, value)
+  layerStore.setLayerVisible(id, value)
 }
 
 function clearSearch() {

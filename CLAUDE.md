@@ -41,12 +41,14 @@ src/
 │   │   └── LayerLegend.vue      # 圖例面板
 │   ├── admin/
 │   │   ├── LayerForm.vue        # 圖層新增/編輯表單
-│   │   └── LayerTable.vue       # 圖層列表（含 CRUD 操作）
+│   │   ├── LayerTable.vue       # 圖層列表（含 CRUD 操作）
+│   │   └── LayerTableToolbar.vue  # 圖層列表工具列（搜尋、篩選）
 │   └── shared/                  # Button、Modal、ConfirmDialog 等共用元件
 ├── composables/
 │   ├── useMap.ts                # MapView 實例建立、銷毀、ref
 │   ├── useLayer.ts              # 圖層 add/toggle/sync 邏輯
-│   └── useAuth.ts               # 登入狀態、token 管理
+│   ├── useAuth.ts               # 登入狀態、token 管理
+│   └── useLayerTableFilters.ts  # 圖層列表搜尋／類型／可見性篩選
 ├── layouts/
 │   ├── PublicLayout.vue         # 前台 layout（全螢幕地圖）
 │   └── AdminLayout.vue          # 後台 layout（側邊欄 + 內容區）
@@ -94,6 +96,24 @@ src/
 **核心型別（`src/types/layer.ts`）：**
 
 ```ts
+export interface LegendItem {
+  label?: string
+  url?: string
+  imageData?: string
+  contentType?: string
+  height?: number
+  width?: number
+}
+
+export interface LegendLayer {
+  layerId: number
+  layerName: string
+  layerType?: string
+  minScale?: number
+  maxScale?: number
+  legend: LegendItem[]
+}
+
 export interface Layer {
   id: number
   name: string
@@ -103,12 +123,33 @@ export interface Layer {
   visible: boolean
   opacity: number                 // 0–1
   sortOrder: number               // 圖層疊加順序（數字越小越底層）
+  legend?: LegendLayer[]          // 後端自動從 ArcGIS 服務拉取並儲存
   renderer?: Record<string, unknown>  // ArcGIS renderer JSON（可選）
   createdAt: string
   updatedAt: string
 }
 
 export type LayerFormData = Omit<Layer, 'id' | 'createdAt' | 'updatedAt'>
+```
+
+**使用者型別（`src/types/user.ts`）：**
+
+```ts
+export type UserRole = 'admin' | 'user'
+
+export interface User {
+  id: number
+  email: string
+  role: UserRole
+  isActive: boolean
+  createdAt: string
+}
+
+export interface TokenResponse {
+  accessToken: string
+  refreshToken: string
+  tokenType: string
+}
 ```
 
 ---
