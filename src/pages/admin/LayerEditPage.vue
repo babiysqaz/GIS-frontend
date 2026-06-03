@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useLayerStore } from '@/stores/layerStore'
 import LayerForm from '@/components/admin/LayerForm.vue'
+import { getApiErrorDetail } from '@/services/api'
 import type { LayerFormData } from '@/types/layer'
 
 const route = useRoute()
@@ -39,8 +40,14 @@ async function handleSubmit(data: LayerFormData) {
       toast.add({ severity: 'success', summary: '已新增', life: 2000 })
     }
     await router.push('/admin/layers')
-  } catch {
-    toast.add({ severity: 'error', summary: '操作失敗，請稍後再試', life: 3000 })
+  } catch (err) {
+    const detail = getApiErrorDetail(err)
+    toast.add({
+      severity: 'error',
+      summary: '操作失敗',
+      detail: detail ?? '請稍後再試',
+      life: 5000,
+    })
   }
 }
 </script>
@@ -55,7 +62,7 @@ async function handleSubmit(data: LayerFormData) {
       <h1 class="text-xl font-bold text-gray-800">{{ isEdit ? '編輯圖層' : '新增圖層' }}</h1>
     </div>
 
-    <div class="max-w-2xl rounded-xl bg-white p-6 shadow-sm">
+    <div class="rounded-xl bg-white p-6 shadow-sm">
       <LayerForm :initial-data="initialData" @submit="handleSubmit" />
     </div>
   </div>

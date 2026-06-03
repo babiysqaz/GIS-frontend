@@ -10,6 +10,7 @@ import App from './App.vue'
 import router from './router'
 // @ts-ignore: CSS module import for Vite build
 import './assets/main.css'
+import 'primeicons/primeicons.css'
 
 const app = createApp(App)
 

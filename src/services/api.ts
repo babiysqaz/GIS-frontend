@@ -26,3 +26,11 @@ api.interceptors.response.use(
 )
 
 export default api
+
+export function getApiErrorDetail(err: unknown): string | null {
+  if (axios.isAxiosError(err)) {
+    const detail = err.response?.data?.detail
+    if (typeof detail === 'string' && detail) return detail
+  }
+  return null
+}

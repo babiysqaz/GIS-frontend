@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { useLayerStore } from '@/stores/layerStore'
+import { getApiErrorDetail } from '@/services/api'
 import type { Layer } from '@/types/layer'
 
 const props = defineProps<{
@@ -66,13 +67,20 @@ function confirmDelete(layer: Layer) {
     message: `確定要刪除「${layer.name}」嗎？`,
     header: '刪除確認',
     acceptLabel: '刪除',
+    acceptProps: { severity: 'danger' },
     rejectLabel: '取消',
     accept: async () => {
       try {
         await layerStore.removeLayer(layer.id)
         toast.add({ severity: 'success', summary: '已刪除', life: 2000 })
-      } catch {
-        toast.add({ severity: 'error', summary: '刪除失敗', life: 3000 })
+      } catch (err) {
+        const detail = getApiErrorDetail(err)
+        toast.add({
+          severity: 'error',
+          summary: '刪除失敗',
+          detail: detail ?? '請稍後再試',
+          life: 5000,
+        })
       }
     },
   })
@@ -121,7 +129,7 @@ function setPage(page: number) {
             </span>
           </th>
           <th class="cursor-pointer px-4 py-3 text-left" @click="toggleSort('visible')">
-            預設顯示
+            預設可見性
             <span class="inline-block w-4 text-right">
               <span v-if="sortField === 'visible'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
             </span>
@@ -132,7 +140,7 @@ function setPage(page: number) {
               <span v-if="sortField === 'opacity'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
             </span>
           </th>
-          <th class="px-4 py-3 text-right">操作</th>
+          <th class="px-4 py-3 text-center">操作</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
@@ -149,7 +157,7 @@ function setPage(page: number) {
             </span>
           </td>
           <td class="px-4 py-3 text-gray-500">{{ (layer.opacity * 100).toFixed(0) }}%</td>
-          <td class="px-4 py-3 text-right">
+          <td class="px-4 py-3 text-center">
             <RouterLink
               :to="`/admin/layers/${layer.id}/edit`"
               class="mr-2 text-blue-600 hover:underline"
@@ -166,7 +174,10 @@ function setPage(page: number) {
 
     <div class="flex items-center justify-between border-t px-4 py-3 text-sm text-gray-500">
       <div>
-        顯示 {{ pagedLayers.length }} / {{ props.layers.length }} 筆
+        <span>顯示 {{ pagedLayers.length }} / {{ props.layers.length }}</span>
+      </div>
+      <div>
+        <span>第 {{ currentPage }} / {{ pageCount }} 頁</span>
       </div>
       <div class="flex items-center gap-2">
         <button

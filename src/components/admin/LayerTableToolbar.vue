@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import InputText from 'primevue/inputtext'
+import IconField from 'primevue/iconfield'
+import InputIcon from 'primevue/inputicon'
 import Select from 'primevue/select'
 import type { LayerTypeFilter, LayerVisibleFilter } from '@/composables/useLayerTableFilters'
 
@@ -43,35 +45,51 @@ const pageSizeProxy = computed({
 </script>
 
 <template>
-  <div class="border bg-white px-4 py-4">
-    <div class="w-full flex items-center gap-3">
-      <div class="w-[50%]">
-        <InputText v-model="searchProxy" placeholder="搜尋名稱或描述" class="w-full" />
+  <div class="border bg-white px-4 py-3 rounded-md shadow-sm">
+    <div class="flex flex-wrap items-end gap-3">
+      <!-- 搜尋欄 -->
+      <div class="flex-1 min-w-[200px] flex flex-col gap-1">
+        <span class="text-xs font-medium text-gray-500">搜尋</span>
+        <IconField>
+          <InputIcon class="pi pi-search" />
+          <InputText v-model="searchProxy" placeholder="搜尋名稱或描述" class="w-full" />
+        </IconField>
       </div>
 
-      <div class="flex flex-wrap gap-2">
-        <Select
-          v-model="typeFilterProxy"
-          :options="typeOptions"
-          optionLabel="label"
-          optionValue="value"
-          class="w-full"
-        />
+      <!-- 篩選條件群組 -->
+      <div class="flex flex-wrap items-end gap-3">
+        <div class="flex flex-col gap-1">
+          <span class="text-xs font-medium text-gray-500">類型</span>
+          <Select
+            v-model="typeFilterProxy"
+            :options="typeOptions"
+            optionLabel="label"
+            optionValue="value"
+            class="min-w-[120px]"
+          />
+        </div>
 
-        <Select
-          v-model="visibleFilterProxy"
-          :options="visibleOptions"
-          optionLabel="label"
-          optionValue="value"
-          class="w-full"
-        />
+        <div class="flex flex-col gap-1">
+          <span class="text-xs font-medium text-gray-500">預設可見性</span>
+          <Select
+            v-model="visibleFilterProxy"
+            :options="visibleOptions"
+            optionLabel="label"
+            optionValue="value"
+            class="min-w-[120px]"
+          />
+        </div>
+      </div>
 
+      <!-- 分頁設定（靠右） -->
+      <div class="flex flex-col gap-1 ml-auto">
+        <span class="text-xs font-medium text-gray-500">每頁顯示</span>
         <Select
           v-model="pageSizeProxy"
           :options="pageSizeOptions"
           optionLabel="label"
           optionValue="value"
-          class="w-full"
+          class="min-w-[100px]"
         />
       </div>
     </div>

@@ -4,6 +4,14 @@ import type { LayerFormData } from '@/types/layer'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Checkbox from 'primevue/checkbox'
+import Select from 'primevue/select'
+import InputNumber from 'primevue/inputnumber'
+import Slider from 'primevue/slider'
+
+const layerTypeOptions = [
+  { label: 'Feature Layer', value: 'feature' },
+  { label: 'Tile Layer', value: 'tile' },
+]
 
 const props = defineProps<{
   initialData?: LayerFormData
@@ -70,35 +78,33 @@ function handleSubmit() {
 
     <div>
       <label class="mb-1 block text-sm font-medium text-gray-700">圖層類型</label>
-      <select
+      <Select
         v-model="form.layerType"
-        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-      >
-        <option value="feature">Feature Layer</option>
-        <option value="tile">Tile Layer</option>
-      </select>
+        :options="layerTypeOptions"
+        option-label="label"
+        option-value="value"
+        class="w-full"
+      />
     </div>
 
     <div class="flex gap-4">
       <div class="flex-1">
         <label class="mb-1 block text-sm font-medium text-gray-700">排序</label>
-        <input
-          v-model.number="form.sortOrder"
-          type="number"
-          min="0"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+        <InputNumber
+          v-model="form.sortOrder"
+          :min="0"
+          class="w-full"
         />
       </div>
       <div class="flex-1">
         <label class="mb-1 block text-sm font-medium text-gray-700">
           透明度 ({{ (form.opacity * 100).toFixed(0) }}%)
         </label>
-        <input
-          v-model.number="form.opacity"
-          type="range"
-          min="0"
-          max="1"
-          step="0.05"
+        <Slider
+          v-model="form.opacity"
+          :min="0"
+          :max="1"
+          :step="0.05"
           class="w-full"
         />
       </div>
