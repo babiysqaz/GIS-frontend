@@ -402,6 +402,14 @@ VITE_API_BASE_URL=
 
 ---
 
+## Lint 與格式化規範
+
+- **ESLint** 只負責**品質檢查**：TypeScript 型別安全、禁止 `any`、強制 `<script setup>`、Props/Emits 型別語法等
+- **Prettier** 只負責**格式化**：縮排、引號、分號、換行等所有排版細節
+- 兩者職責不重疊；`eslint-config-prettier` 確保 ESLint 不干涉 Prettier 負責的格式規則
+
+---
+
 ## 開發指令
 
 ```bash
@@ -409,7 +417,9 @@ npm install           # 安裝依賴
 npm run dev           # 啟動開發伺服器（port 5173）
 npm run build         # 正式版本建構
 npm run type-check    # tsc --noEmit
-npm run lint          # eslint
+npm run lint          # eslint（品質檢查）
+npm run format        # prettier --write（格式化）
+npm run format:check  # prettier --check（CI 用）
 npm run test          # vitest
 ```
 
