@@ -1,17 +1,11 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { LayerFormData } from '@/types/layer'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Checkbox from 'primevue/checkbox'
-import Select from 'primevue/select'
 import InputNumber from 'primevue/inputnumber'
 import Slider from 'primevue/slider'
-
-const layerTypeOptions = [
-  { label: 'Feature Layer', value: 'feature' },
-  { label: 'Tile Layer', value: 'tile' },
-]
 
 const props = defineProps<{
   initialData?: LayerFormData
@@ -25,13 +19,16 @@ const defaultForm = (): LayerFormData => ({
   name: '',
   description: '',
   serviceUrl: '',
-  layerType: 'feature',
-  visible: true,
+  visible: false,
   opacity: 1.0,
   sortOrder: 0,
 })
 
 const form = ref<LayerFormData>(defaultForm())
+
+const inferredLayerType = computed(() =>
+  /\/FeatureServer/i.test(form.value.serviceUrl) ? 'Feature Layer' : 'Tile Layer'
+)
 
 watch(
   () => props.initialData,
@@ -41,7 +38,28 @@ watch(
   { immediate: true },
 )
 
+const urlError = ref('')
+
+function validateUrl(value: string): boolean {
+  try {
+    const url = new URL(value)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+function onUrlBlur() {
+  urlError.value = form.value.serviceUrl && !validateUrl(form.value.serviceUrl)
+    ? '請輸入有效的 URL（需以 http:// 或 https:// 開頭）'
+    : ''
+}
+
 function handleSubmit() {
+  if (!validateUrl(form.value.serviceUrl)) {
+    urlError.value = '請輸入有效的 URL（需以 http:// 或 https:// 開頭）'
+    return
+  }
   emit('submit', { ...form.value })
 }
 </script>
@@ -71,27 +89,27 @@ function handleSubmit() {
       <InputText
         v-model="form.serviceUrl"
         required
-        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+        class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none"
+        :class="urlError ? 'border-red-400 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'"
         placeholder="https://services.arcgis.com/..."
+        @blur="onUrlBlur"
       />
+      <p v-if="urlError" class="mt-1 text-xs text-red-500">{{ urlError }}</p>
     </div>
 
     <div>
       <label class="mb-1 block text-sm font-medium text-gray-700">圖層類型</label>
-      <Select
-        v-model="form.layerType"
-        :options="layerTypeOptions"
-        option-label="label"
-        option-value="value"
-        class="w-full"
-      />
+      <div class="flex h-9 items-center rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500">
+        {{ inferredLayerType }}
+      </div>
     </div>
 
     <div class="flex gap-4">
       <div class="flex-1">
-        <label class="mb-1 block text-sm font-medium text-gray-700">排序</label>
+        <label class="mb-1 block text-sm font-medium text-gray-700">排序 *</label>
         <InputNumber
           v-model="form.sortOrder"
+          required
           :min="0"
           class="w-full"
         />
@@ -100,13 +118,15 @@ function handleSubmit() {
         <label class="mb-1 block text-sm font-medium text-gray-700">
           透明度 ({{ (form.opacity * 100).toFixed(0) }}%)
         </label>
-        <Slider
-          v-model="form.opacity"
-          :min="0"
-          :max="1"
-          :step="0.05"
-          class="w-full"
-        />
+        <div class="flex h-9 items-center pr-2">
+          <Slider
+            v-model="form.opacity"
+            :min="0"
+            :max="1"
+            :step="0.05"
+            class="w-full"
+          />
+        </div>
       </div>
     </div>
 

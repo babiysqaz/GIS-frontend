@@ -30,4 +30,4 @@ export interface Layer {
   updatedAt: string
 }
 
-export type LayerFormData = Omit<Layer, 'id' | 'createdAt' | 'updatedAt'>
+export type LayerFormData = Omit<Layer, 'id' | 'createdAt' | 'updatedAt' | 'layerType'>
