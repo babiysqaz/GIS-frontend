@@ -90,7 +90,7 @@ function getRendererEntries(renderer: RendererRecord): RendererEntry[] {
     class="rounded-xl bg-white p-3 shadow-md"
   >
     <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">圖例</p>
-    <div class="flex flex-col gap-3">
+    <div class="flex flex-col gap-3 max-h-64 overflow-y-auto pr-1">
       <div
         v-for="layer in visibleLayers"
         :key="layer.id"

@@ -18,18 +18,18 @@ onMounted(async () => {
 
 <template>
   <div class="flex h-full w-full overflow-hidden">
-    <aside class="w-80 min-w-[280px] border-r border-slate-200 bg-slate-50/95 p-4 shadow-sm">
+    <aside class="flex h-full w-80 min-w-[280px] flex-col border-r border-slate-200 bg-slate-50/95 p-4 shadow-sm">
       <div class="mb-6 space-y-2">
         <h2 class="text-lg font-semibold text-slate-900">圖層控制</h2>
         <p class="text-sm text-slate-600">搜尋並切換左側圖層顯示，方便快速定位需要的資料。</p>
       </div>
 
-      <LayerToggle />
+      <LayerToggle class="min-h-0 flex-1" />
     </aside>
 
     <main class="relative flex-1 h-full bg-slate-100">
       <MapViewer />
-      <LayerLegend class="absolute bottom-4 right-4 z-10" />
+      <LayerLegend class="absolute bottom-5 right-4 z-10" />
 
       <RouterLink
         v-if="authStore.isAdmin"

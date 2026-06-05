@@ -67,8 +67,9 @@ function confirmDelete(layer: Layer) {
     message: `確定要刪除「${layer.name}」嗎？`,
     header: '刪除確認',
     acceptLabel: '刪除',
-    acceptProps: { severity: 'danger' },
+    acceptProps: { severity: 'danger', style: 'width:60px;height:36px' },
     rejectLabel: '取消',
+    rejectProps: { style: 'width:60px;height:36px' },
     accept: async () => {
       try {
         await layerStore.removeLayer(layer.id)
@@ -160,11 +161,14 @@ function setPage(page: number) {
           <td class="px-4 py-3 text-center">
             <RouterLink
               :to="`/admin/layers/${layer.id}/edit`"
-              class="mr-2 text-blue-600 hover:underline"
+              class="mr-2 inline-flex h-9 w-[60px] items-center justify-center rounded border border-blue-200 text-sm text-blue-600 hover:bg-blue-50"
             >
               編輯
             </RouterLink>
-            <button class="text-red-500 hover:underline" @click="confirmDelete(layer)">
+            <button
+              class="inline-flex h-9 w-[60px] items-center justify-center rounded border border-red-200 text-sm text-red-500 hover:bg-red-50"
+              @click="confirmDelete(layer)"
+            >
               刪除
             </button>
           </td>
@@ -174,13 +178,10 @@ function setPage(page: number) {
 
     <div class="flex items-center justify-between border-t px-4 py-3 text-sm text-gray-500">
       <div>
-        <span>顯示 {{ pagedLayers.length }} / {{ props.layers.length }}</span>
-      </div>
-      <div>
         <span>第 {{ currentPage }} / {{ pageCount }} 頁</span>
       </div>
       <div class="flex items-center gap-2">
-        <button
+        <button 
           class="rounded-lg border border-gray-200 bg-white px-3 py-1 text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="currentPage === 1"
           @click="setPage(currentPage - 1)"
