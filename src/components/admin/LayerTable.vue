@@ -47,9 +47,12 @@ const sortedLayers = computed(() => {
 
 const pageCount = computed(() => Math.max(1, Math.ceil(sortedLayers.value.length / props.pageSize)))
 
-watch(() => props.pageSize, () => {
-  currentPage.value = 1
-})
+watch(
+  () => props.pageSize,
+  () => {
+    currentPage.value = 1
+  },
+)
 
 watch(pageCount, (value) => {
   if (currentPage.value > value) {
@@ -120,13 +123,17 @@ function setPage(page: number) {
           <th class="cursor-pointer px-4 py-3 text-left" @click="toggleSort('layerType')">
             類型
             <span class="inline-block w-4 text-right">
-              <span v-if="sortField === 'layerType'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+              <span v-if="sortField === 'layerType'">{{
+                sortDirection === 'asc' ? '▲' : '▼'
+              }}</span>
             </span>
           </th>
           <th class="cursor-pointer px-4 py-3 text-left" @click="toggleSort('sortOrder')">
             排序
             <span class="inline-block w-4 text-right">
-              <span v-if="sortField === 'sortOrder'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+              <span v-if="sortField === 'sortOrder'">{{
+                sortDirection === 'asc' ? '▲' : '▼'
+              }}</span>
             </span>
           </th>
           <th class="cursor-pointer px-4 py-3 text-left" @click="toggleSort('visible')">
@@ -181,7 +188,7 @@ function setPage(page: number) {
         <span>第 {{ currentPage }} / {{ pageCount }} 頁</span>
       </div>
       <div class="flex items-center gap-2">
-        <button 
+        <button
           class="rounded-lg border border-gray-200 bg-white px-3 py-1 text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="currentPage === 1"
           @click="setPage(currentPage - 1)"

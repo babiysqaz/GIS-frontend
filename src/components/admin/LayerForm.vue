@@ -27,7 +27,7 @@ const defaultForm = (): LayerFormData => ({
 const form = ref<LayerFormData>(defaultForm())
 
 const inferredLayerType = computed(() =>
-  /\/FeatureServer/i.test(form.value.serviceUrl) ? 'Feature Layer' : 'Tile Layer'
+  /\/FeatureServer/i.test(form.value.serviceUrl) ? 'Feature Layer' : 'Tile Layer',
 )
 
 watch(
@@ -50,9 +50,10 @@ function validateUrl(value: string): boolean {
 }
 
 function onUrlBlur() {
-  urlError.value = form.value.serviceUrl && !validateUrl(form.value.serviceUrl)
-    ? '請輸入有效的 URL（需以 http:// 或 https:// 開頭）'
-    : ''
+  urlError.value =
+    form.value.serviceUrl && !validateUrl(form.value.serviceUrl)
+      ? '請輸入有效的 URL（需以 http:// 或 https:// 開頭）'
+      : ''
 }
 
 function handleSubmit() {
@@ -90,7 +91,9 @@ function handleSubmit() {
         v-model="form.serviceUrl"
         required
         class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none"
-        :class="urlError ? 'border-red-400 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'"
+        :class="
+          urlError ? 'border-red-400 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
+        "
         placeholder="https://services.arcgis.com/..."
         @blur="onUrlBlur"
       />
@@ -99,7 +102,9 @@ function handleSubmit() {
 
     <div>
       <label class="mb-1 block text-sm font-medium text-gray-700">圖層類型</label>
-      <div class="flex h-9 items-center rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500">
+      <div
+        class="flex h-9 items-center rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500"
+      >
         {{ inferredLayerType }}
       </div>
     </div>
@@ -107,31 +112,20 @@ function handleSubmit() {
     <div class="flex gap-4">
       <div class="flex-1">
         <label class="mb-1 block text-sm font-medium text-gray-700">排序 *</label>
-        <InputNumber
-          v-model="form.sortOrder"
-          required
-          :min="0"
-          class="w-full"
-        />
+        <InputNumber v-model="form.sortOrder" required :min="0" class="w-full" />
       </div>
       <div class="flex-1">
         <label class="mb-1 block text-sm font-medium text-gray-700">
           透明度 ({{ (form.opacity * 100).toFixed(0) }}%)
         </label>
         <div class="flex h-9 items-center pr-2">
-          <Slider
-            v-model="form.opacity"
-            :min="0"
-            :max="1"
-            :step="0.05"
-            class="w-full"
-          />
+          <Slider v-model="form.opacity" :min="0" :max="1" :step="0.05" class="w-full" />
         </div>
       </div>
     </div>
 
     <div class="flex items-center gap-2">
-      <Checkbox inputId="visible" v-model="form.visible" binary/>
+      <Checkbox v-model="form.visible" input-id="visible" binary />
       <label for="visible" class="text-sm font-medium text-gray-700">預設顯示</label>
     </div>
 

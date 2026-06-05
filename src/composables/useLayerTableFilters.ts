@@ -31,8 +31,7 @@ export function useLayerTableFilters(layers: Ref<Layer[]>) {
         layer.name.toLowerCase().includes(keyword) ||
         layer.description.toLowerCase().includes(keyword)
 
-      const matchesType =
-        typeFilter.value === 'all' || layer.layerType === typeFilter.value
+      const matchesType = typeFilter.value === 'all' || layer.layerType === typeFilter.value
 
       const matchesVisible =
         visibleFilter.value === 'all' ||

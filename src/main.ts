@@ -8,7 +8,6 @@ import ConfirmDialog from 'primevue/confirmdialog'
 
 import App from './App.vue'
 import router from './router'
-// @ts-ignore: CSS module import for Vite build
 import './assets/main.css'
 import 'primeicons/primeicons.css'
 
@@ -20,9 +19,9 @@ app.use(PrimeVue, {
   theme: {
     preset: Aura,
     options: {
-      darkModeSelector: false
-    }
-  }
+      darkModeSelector: false,
+    },
+  },
 })
 app.use(ToastService)
 app.use(ConfirmationService)

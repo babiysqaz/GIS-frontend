@@ -63,8 +63,8 @@ const pageSizeProxy = computed({
           <Select
             v-model="typeFilterProxy"
             :options="typeOptions"
-            optionLabel="label"
-            optionValue="value"
+            option-label="label"
+            option-value="value"
             class="min-w-[120px]"
           />
         </div>
@@ -74,8 +74,8 @@ const pageSizeProxy = computed({
           <Select
             v-model="visibleFilterProxy"
             :options="visibleOptions"
-            optionLabel="label"
-            optionValue="value"
+            option-label="label"
+            option-value="value"
             class="min-w-[120px]"
           />
         </div>
@@ -87,8 +87,8 @@ const pageSizeProxy = computed({
         <Select
           v-model="pageSizeProxy"
           :options="pageSizeOptions"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           class="min-w-[100px]"
         />
       </div>

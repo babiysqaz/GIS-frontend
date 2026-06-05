@@ -182,7 +182,7 @@ function onOpacityChange(id: number, value: number) {
               {{ localOpacity[layer.id] ?? 100 }}%
             </span>
           </div>
-          
+
           <!-- Reorder -->
           <div class="flex items-center gap-1.5">
             <span class="w-14 shrink-0 text-xs text-slate-400">疊加順序</span>

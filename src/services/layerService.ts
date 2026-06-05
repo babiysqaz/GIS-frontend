@@ -1,8 +1,7 @@
 import api from './api'
 import type { Layer, LayerFormData } from '@/types/layer'
 
-export const fetchLayers = (): Promise<Layer[]> =>
-  api.get('/layers/').then((r) => r.data)
+export const fetchLayers = (): Promise<Layer[]> => api.get('/layers/').then((r) => r.data)
 
 export const createLayer = (data: LayerFormData): Promise<Layer> =>
   api.post('/layers/', data).then((r) => r.data)

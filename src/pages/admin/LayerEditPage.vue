@@ -12,9 +12,7 @@ const router = useRouter()
 const toast = useToast()
 const layerStore = useLayerStore()
 
-const layerId = computed(() =>
-  route.params.id ? Number(route.params.id) : null,
-)
+const layerId = computed(() => (route.params.id ? Number(route.params.id) : null))
 const isEdit = computed(() => layerId.value !== null)
 
 const initialData = ref<LayerFormData | undefined>(undefined)

@@ -23,7 +23,13 @@ let isRefreshing = false
 let pendingQueue: Array<{ resolve: PendingResolver; reject: PendingRejector }> = []
 
 function drainQueue(err: unknown, token: string | null) {
-  pendingQueue.forEach(({ resolve, reject }) => (err ? reject(err) : resolve(token!)))
+  pendingQueue.forEach(({ resolve, reject }) => {
+    if (err) {
+      reject(err)
+    } else if (token !== null) {
+      resolve(token)
+    }
+  })
   pendingQueue = []
 }
 
@@ -61,7 +67,8 @@ api.interceptors.response.use(
     const auth = useAuthStore()
     try {
       await auth.refresh()
-      const newToken = auth.token!
+      const newToken = auth.token
+      if (!newToken) throw new Error('Token missing after refresh')
       drainQueue(null, newToken)
       originalRequest.headers.Authorization = `Bearer ${newToken}`
       return api(originalRequest)

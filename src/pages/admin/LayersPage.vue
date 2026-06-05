@@ -7,14 +7,8 @@ import { useLayerTableFilters } from '@/composables/useLayerTableFilters'
 
 const layerStore = useLayerStore()
 const layerList = toRef(layerStore, 'layers')
-const {
-  search,
-  typeFilter,
-  visibleFilter,
-  filteredLayers,
-  typeOptions,
-  visibleOptions,
-} = useLayerTableFilters(layerList)
+const { search, typeFilter, visibleFilter, filteredLayers, typeOptions, visibleOptions } =
+  useLayerTableFilters(layerList)
 const pageSize = ref(10)
 const pageSizeOptions = [
   { label: '每頁 5 筆', value: 5 },
@@ -44,18 +38,18 @@ onMounted(() => layerStore.loadLayers())
     <LayerTableToolbar
       class="mb-4 rounded-xl"
       :search="search"
-      :typeFilter="typeFilter"
-      :visibleFilter="visibleFilter"
-      :pageSize="pageSize"
-      :typeOptions="typeOptions"
-      :visibleOptions="visibleOptions"
-      :pageSizeOptions="pageSizeOptions"
+      :type-filter="typeFilter"
+      :visible-filter="visibleFilter"
+      :page-size="pageSize"
+      :type-options="typeOptions"
+      :visible-options="visibleOptions"
+      :page-size-options="pageSizeOptions"
       @update:search="search = $event"
-      @update:typeFilter="typeFilter = $event"
-      @update:visibleFilter="visibleFilter = $event"
-      @update:pageSize="pageSize = $event"
+      @update:type-filter="typeFilter = $event"
+      @update:visible-filter="visibleFilter = $event"
+      @update:page-size="pageSize = $event"
     />
 
-    <LayerTable :layers="filteredLayers" :loading="layerStore.loading" :pageSize="pageSize" />
+    <LayerTable :layers="filteredLayers" :loading="layerStore.loading" :page-size="pageSize" />
   </div>
 </template>

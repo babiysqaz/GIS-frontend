@@ -61,14 +61,24 @@ function getRendererEntries(renderer: RendererRecord): RendererEntry[] {
 
   if (type === 'simple') {
     const sym = extractSymbol(renderer)
-    return [{ label: (renderer.label as string | undefined) ?? '', color: symbolColor(sym), symbolType: symbolType(sym) }]
+    return [
+      {
+        label: (renderer.label as string | undefined) ?? '',
+        color: symbolColor(sym),
+        symbolType: symbolType(sym),
+      },
+    ]
   }
 
   if (type === 'classBreaks') {
     const infos = (renderer.classBreakInfos as RendererRecord[] | undefined) ?? []
     return infos.map((info) => {
       const sym = extractSymbol(info)
-      return { label: (info.label as string | undefined) ?? '', color: symbolColor(sym), symbolType: symbolType(sym) }
+      return {
+        label: (info.label as string | undefined) ?? '',
+        color: symbolColor(sym),
+        symbolType: symbolType(sym),
+      }
     })
   }
 
@@ -76,7 +86,11 @@ function getRendererEntries(renderer: RendererRecord): RendererEntry[] {
     const infos = (renderer.uniqueValueInfos as RendererRecord[] | undefined) ?? []
     return infos.map((info) => {
       const sym = extractSymbol(info)
-      return { label: (info.label as string | undefined) ?? '', color: symbolColor(sym), symbolType: symbolType(sym) }
+      return {
+        label: (info.label as string | undefined) ?? '',
+        color: symbolColor(sym),
+        symbolType: symbolType(sym),
+      }
     })
   }
 
@@ -85,24 +99,15 @@ function getRendererEntries(renderer: RendererRecord): RendererEntry[] {
 </script>
 
 <template>
-  <div
-    v-if="visibleLayers.length"
-    class="rounded-xl bg-white p-3 shadow-md"
-  >
+  <div v-if="visibleLayers.length" class="rounded-xl bg-white p-3 shadow-md">
     <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">圖例</p>
     <div class="flex flex-col gap-3 max-h-64 overflow-y-auto pr-1">
-      <div
-        v-for="layer in visibleLayers"
-        :key="layer.id"
-      >
+      <div v-for="layer in visibleLayers" :key="layer.id">
         <p class="mb-1 text-xs font-medium text-gray-600">{{ layer.name }}</p>
 
         <!-- MapServer: 後端預渲染的 base64 圖片 -->
         <template v-if="isMapServerLegend(layer.legend)">
-          <template
-            v-for="legendLayer in layer.legend"
-            :key="legendLayer.layerId"
-          >
+          <template v-for="legendLayer in layer.legend" :key="legendLayer.layerId">
             <ul class="flex flex-col gap-1">
               <li
                 v-for="(item, idx) in legendLayer.legend"
@@ -117,10 +122,7 @@ function getRendererEntries(renderer: RendererRecord): RendererEntry[] {
                   class="shrink-0"
                   alt=""
                 />
-                <span
-                  v-else
-                  class="inline-block h-3 w-3 shrink-0 rounded-full bg-blue-500"
-                />
+                <span v-else class="inline-block h-3 w-3 shrink-0 rounded-full bg-blue-500" />
                 <span>{{ item.label }}</span>
               </li>
             </ul>
