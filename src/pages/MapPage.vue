@@ -4,10 +4,10 @@ import MapViewer from '@/components/map/MapViewer.vue'
 import LayerToggle from '@/components/map/LayerToggle.vue'
 import LayerLegend from '@/components/map/LayerLegend.vue'
 import { useLayerStore } from '@/stores/layerStore'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuth } from '@/composables/useAuth'
 
 const layerStore = useLayerStore()
-const authStore = useAuthStore()
+const { authStore, logout } = useAuth()
 
 onMounted(async () => {
   if (authStore.isLoggedIn) {
@@ -26,7 +26,15 @@ onMounted(async () => {
         <p class="text-sm text-slate-600">搜尋並切換左側圖層顯示，方便快速定位需要的資料。</p>
       </div>
 
-      <LayerToggle class="min-h-0 flex-1" />
+      <LayerToggle class="min-h-0 flex-1 mb-4" />
+
+      <button
+        v-if="authStore.isLoggedIn"
+        class="rounded-lg bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
+        @click="logout"
+      >
+        登出
+      </button>
     </aside>
 
     <main class="relative flex-1 h-full bg-slate-100">
@@ -36,12 +44,12 @@ onMounted(async () => {
       <RouterLink
         v-if="authStore.isAdmin"
         to="/admin/layers"
-        class="absolute right-4 top-4 z-10 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-gray-700"
+        class="absolute right-4 top-4 z-10 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
       >
         管理後台
       </RouterLink>
       <RouterLink
-        v-else-if="!authStore.isLoggedIn"
+        v-if="!authStore.isLoggedIn"
         to="/login"
         class="absolute right-4 top-4 z-10 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
       >
