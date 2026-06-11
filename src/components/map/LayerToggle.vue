@@ -21,8 +21,8 @@ watch(
   () => layerStore.layers,
   (layers) => {
     if (!layers.length || localOrder.value.length) return
-    // index 0 = visually on top (highest sortOrder first)
-    localOrder.value = [...layers].sort((a, b) => b.sortOrder - a.sortOrder).map((l) => l.id)
+    // index 0 = bottom layer; rank = index + 1 matches sort_order
+    localOrder.value = [...layers].sort((a, b) => a.sortOrder - b.sortOrder).map((l) => l.id)
     const opacityMap: Record<number, number> = {}
     layers.forEach((l) => {
       opacityMap[l.id] = Math.round(l.opacity * 100)
@@ -38,7 +38,7 @@ const filteredLayers = computed(() => {
   return layerStore.layers.filter((layer) => layer.name.toLowerCase().includes(query))
 })
 
-// Returns 1-based rank from top (1 = visually on top on map)
+// Returns 1-based rank from bottom (1 = bottom layer, matches sort_order)
 function renderRank(id: number): number {
   return localOrder.value.indexOf(id) + 1
 }
@@ -58,10 +58,9 @@ function toggleSelected(id: number) {
 
 function applyOrderToMap() {
   const map = mapView.value?.map
-  if (!map)
-    return // localOrder[0] = visually on top = highest ArcGIS index
-    // Apply from bottom layer (last in localOrder) upward so each reorder lands correctly
-  ;[...localOrder.value].reverse().forEach((id, i) => {
+  if (!map) return
+  // localOrder[0] = bottom layer = ArcGIS index 0
+  localOrder.value.forEach((id, i) => {
     const layer = map.findLayerById(String(id))
     if (layer) map.reorder(layer, i)
   })
@@ -69,18 +68,18 @@ function applyOrderToMap() {
 
 function moveUp(id: number) {
   const idx = localOrder.value.indexOf(id)
-  if (idx <= 0) return
+  if (idx >= localOrder.value.length - 1) return
   const next = [...localOrder.value]
-  ;[next[idx - 1], next[idx]] = [next[idx], next[idx - 1]]
+  ;[next[idx + 1], next[idx]] = [next[idx], next[idx + 1]]
   localOrder.value = next
   applyOrderToMap()
 }
 
 function moveDown(id: number) {
   const idx = localOrder.value.indexOf(id)
-  if (idx >= localOrder.value.length - 1) return
+  if (idx <= 0) return
   const next = [...localOrder.value]
-  ;[next[idx + 1], next[idx]] = [next[idx], next[idx + 1]]
+  ;[next[idx - 1], next[idx]] = [next[idx], next[idx - 1]]
   localOrder.value = next
   applyOrderToMap()
 }
@@ -188,7 +187,7 @@ function onOpacityChange(id: number, value: number) {
             <span class="w-14 shrink-0 text-xs text-slate-400">疊加順序</span>
             <button
               type="button"
-              :disabled="localOrder[0] === layer.id"
+              :disabled="localOrder[localOrder.length - 1] === layer.id"
               class="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
               @click="moveUp(layer.id)"
             >
@@ -196,7 +195,7 @@ function onOpacityChange(id: number, value: number) {
             </button>
             <button
               type="button"
-              :disabled="localOrder[localOrder.length - 1] === layer.id"
+              :disabled="localOrder[0] === layer.id"
               class="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
               @click="moveDown(layer.id)"
             >
