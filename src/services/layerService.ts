@@ -2,8 +2,7 @@ import api from './api'
 import type { Layer, LayerFormData, LayerListParams, PaginatedLayersResponse } from '@/types/layer'
 
 /** 取得所有圖層（不分頁），供地圖前台使用 */
-export const fetchAllLayers = (): Promise<Layer[]> =>
-  api.get('/layers/all').then((r) => r.data)
+export const fetchAllLayers = (): Promise<Layer[]> => api.get('/layers/all').then((r) => r.data)
 
 /** 取得分頁圖層列表，供後台管理使用 */
 export const fetchLayers = (params: LayerListParams = {}): Promise<PaginatedLayersResponse> => {

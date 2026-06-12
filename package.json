@@ -11,7 +11,17 @@
     "lint": "eslint \"src/**/*.{ts,vue}\" --fix",
     "format": "prettier --write src",
     "format:check": "prettier --check src",
-    "test": "vitest"
+    "test": "vitest",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "src/**/*.{json,css}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@arcgis/core": "^4.31.0",
@@ -34,7 +44,9 @@
     "eslint": "^9.6.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^9.27.0",
+    "husky": "^9.1.7",
     "jsdom": "^24.1.0",
+    "lint-staged": "^16.4.0",
     "postcss": "^8.4.39",
     "prettier": "^3.8.3",
     "tailwindcss": "^3.4.4",
