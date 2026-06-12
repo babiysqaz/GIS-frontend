@@ -1,22 +1,68 @@
 <script setup lang="ts">
-import { onMounted, ref, toRef } from 'vue'
-import { useLayerStore } from '@/stores/layerStore'
+import { onMounted, ref, watch } from 'vue'
+import * as layerService from '@/services/layerService'
 import LayerTable from '@/components/admin/LayerTable.vue'
 import LayerTableToolbar from '@/components/admin/LayerTableToolbar.vue'
-import { useLayerTableFilters } from '@/composables/useLayerTableFilters'
+import type { Layer, LayerListParams } from '@/types/layer'
+import type { LayerTypeFilter, LayerVisibleFilter } from '@/composables/useLayerTableFilters'
 
-const layerStore = useLayerStore()
-const layerList = toRef(layerStore, 'layers')
-const { search, typeFilter, visibleFilter, filteredLayers, typeOptions, visibleOptions } =
-  useLayerTableFilters(layerList)
+const layers = ref<Layer[]>([])
+const total = ref(0)
+const loading = ref(false)
+const page = ref(1)
 const pageSize = ref(10)
+const search = ref('')
+const typeFilter = ref<LayerTypeFilter>('all')
+const visibleFilter = ref<LayerVisibleFilter>('all')
+const error = ref<string | null>(null)
+
+const typeOptions = [
+  { label: '全部類型', value: 'all' },
+  { label: 'Feature', value: 'feature' },
+  { label: 'Tile', value: 'tile' },
+]
+
+const visibleOptions = [
+  { label: '全部狀態', value: 'all' },
+  { label: '顯示', value: 'visible' },
+  { label: '隱藏', value: 'hidden' },
+]
+
 const pageSizeOptions = [
   { label: '每頁 5 筆', value: 5 },
   { label: '每頁 10 筆', value: 10 },
   { label: '每頁 20 筆', value: 20 },
 ]
 
-onMounted(() => layerStore.loadLayers())
+async function loadPage() {
+  loading.value = true
+  error.value = null
+  try {
+    const params: LayerListParams = {
+      page: page.value,
+      size: pageSize.value,
+      search: search.value || undefined,
+      layerType: typeFilter.value === 'all' ? null : typeFilter.value,
+      visible: visibleFilter.value === 'all' ? null : visibleFilter.value === 'visible',
+    }
+    const result = await layerService.fetchLayers(params)
+    layers.value = result.items
+    total.value = result.total
+  } catch {
+    error.value = '載入圖層失敗'
+  } finally {
+    loading.value = false
+  }
+}
+
+watch([search, typeFilter, visibleFilter, pageSize], () => {
+  page.value = 1
+  loadPage()
+})
+
+watch(page, loadPage)
+
+onMounted(loadPage)
 </script>
 
 <template>
@@ -31,8 +77,8 @@ onMounted(() => layerStore.loadLayers())
       </RouterLink>
     </div>
 
-    <div v-if="layerStore.error" class="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
-      {{ layerStore.error }}
+    <div v-if="error" class="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+      {{ error }}
     </div>
 
     <LayerTableToolbar
@@ -50,6 +96,14 @@ onMounted(() => layerStore.loadLayers())
       @update:page-size="pageSize = $event"
     />
 
-    <LayerTable :layers="filteredLayers" :loading="layerStore.loading" :page-size="pageSize" />
+    <LayerTable
+      :layers="layers"
+      :loading="loading"
+      :page-size="pageSize"
+      :total="total"
+      :page="page"
+      @update:page="page = $event"
+      @deleted="loadPage"
+    />
   </div>
 </template>

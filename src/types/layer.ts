@@ -31,3 +31,18 @@ export interface Layer {
 }
 
 export type LayerFormData = Omit<Layer, 'id' | 'createdAt' | 'updatedAt' | 'layerType'>
+
+export interface PaginatedLayersResponse {
+  items: Layer[]
+  total: number
+  page: number
+  size: number
+}
+
+export interface LayerListParams {
+  page?: number
+  size?: number
+  search?: string
+  layerType?: 'feature' | 'tile' | null
+  visible?: boolean | null
+}

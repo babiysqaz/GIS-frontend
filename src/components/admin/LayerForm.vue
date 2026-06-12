@@ -111,7 +111,7 @@ function handleSubmit() {
 
     <div class="flex gap-4">
       <div class="flex-1">
-        <label class="mb-1 block text-sm font-medium text-gray-700">排序 *</label>
+        <label class="mb-1 block text-sm font-medium text-gray-700">疊加排序 *</label>
         <InputNumber v-model="form.sortOrder" required :min="0" class="w-full" />
       </div>
       <div class="flex-1">

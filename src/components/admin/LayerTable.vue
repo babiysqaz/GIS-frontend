@@ -1,69 +1,75 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { VueDraggable } from 'vue-draggable-plus'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { useLayerStore } from '@/stores/layerStore'
 import { getApiErrorDetail } from '@/services/api'
+import { batchUpdateSortOrder } from '@/services/layerService'
 import type { Layer } from '@/types/layer'
 
 const props = defineProps<{
   layers: Layer[]
   loading: boolean
   pageSize: number
+  total: number
+  page: number
+}>()
+
+const emit = defineEmits<{
+  (event: 'update:page', value: number): void
+  (event: 'deleted'): void
 }>()
 
 const confirm = useConfirm()
 const toast = useToast()
 const layerStore = useLayerStore()
 
-const sortField = ref<'name' | 'layerType' | 'sortOrder' | 'visible' | 'opacity'>('sortOrder')
-const sortDirection = ref<'asc' | 'desc'>('asc')
-const currentPage = ref(1)
-
-const sortedLayers = computed(() => {
-  const ordered = [...props.layers]
-
-  ordered.sort((a, b) => {
-    const dir = sortDirection.value === 'asc' ? 1 : -1
-
-    switch (sortField.value) {
-      case 'name':
-        return a.name.localeCompare(b.name) * dir
-      case 'layerType':
-        return a.layerType.localeCompare(b.layerType) * dir
-      case 'sortOrder':
-        return (a.sortOrder - b.sortOrder) * dir
-      case 'visible':
-        return ((a.visible === b.visible ? 0 : a.visible ? -1 : 1) as number) * dir
-      case 'opacity':
-        return (a.opacity - b.opacity) * dir
-      default:
-        return 0
-    }
-  })
-
-  return ordered
-})
-
-const pageCount = computed(() => Math.max(1, Math.ceil(sortedLayers.value.length / props.pageSize)))
+const saving = ref(false)
+const localLayers = ref<Layer[]>([])
+let preDragLayers: Layer[] = []
 
 watch(
-  () => props.pageSize,
-  () => {
-    currentPage.value = 1
+  () => props.layers,
+  (layers) => {
+    localLayers.value = [...layers].sort((a, b) => a.sortOrder - b.sortOrder)
   },
+  { immediate: true },
 )
 
-watch(pageCount, (value) => {
-  if (currentPage.value > value) {
-    currentPage.value = value
-  }
-})
+const pageCount = computed(() => Math.max(1, Math.ceil(props.total / props.pageSize)))
 
-const pagedLayers = computed(() => {
-  const start = (currentPage.value - 1) * props.pageSize
-  return sortedLayers.value.slice(start, start + props.pageSize)
-})
+function onDragStart() {
+  preDragLayers = [...localLayers.value]
+}
+
+async function onDragEnd() {
+  if (preDragLayers.length === 0) return
+
+  const sortOrderValues = preDragLayers.map((l) => l.sortOrder)
+  const changed = localLayers.value
+    .map((layer, index) => ({ id: layer.id, sortOrder: sortOrderValues[index] }))
+    .filter(({ id, sortOrder }) => preDragLayers.find((l) => l.id === id)!.sortOrder !== sortOrder)
+
+  preDragLayers = []
+  if (changed.length === 0) return
+
+  saving.value = true
+  try {
+    await batchUpdateSortOrder(changed)
+    toast.add({ severity: 'success', summary: '排序已儲存', life: 2000 })
+    const newOrders = new Map(changed.map((c) => [c.id, c.sortOrder]))
+    localLayers.value = localLayers.value.map((l) => ({
+      ...l,
+      sortOrder: newOrders.get(l.id) ?? l.sortOrder,
+    }))
+  } catch {
+    toast.add({ severity: 'error', summary: '排序儲存失敗', detail: '請稍後再試', life: 5000 })
+    localLayers.value = preDragLayers
+  } finally {
+    saving.value = false
+  }
+}
 
 function confirmDelete(layer: Layer) {
   confirm.require({
@@ -77,6 +83,7 @@ function confirmDelete(layer: Layer) {
       try {
         await layerStore.removeLayer(layer.id)
         toast.add({ severity: 'success', summary: '已刪除', life: 2000 })
+        emit('deleted')
       } catch (err) {
         const detail = getApiErrorDetail(err)
         toast.add({
@@ -90,71 +97,62 @@ function confirmDelete(layer: Layer) {
   })
 }
 
-function toggleSort(field: typeof sortField.value) {
-  if (sortField.value === field) {
-    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
-  } else {
-    sortField.value = field
-    sortDirection.value = 'asc'
-  }
-}
-
-function setPage(page: number) {
-  currentPage.value = Math.min(Math.max(page, 1), pageCount.value)
+function setPage(value: number) {
+  emit('update:page', Math.min(Math.max(value, 1), pageCount.value))
 }
 </script>
 
 <template>
   <div class="overflow-hidden rounded-xl bg-white shadow-sm border">
     <div v-if="loading" class="p-6 text-center text-sm text-gray-500">載入中...</div>
-    <div v-else-if="!props.layers.length" class="p-6 text-center text-sm text-gray-500">
+    <div v-else-if="!localLayers.length" class="p-6 text-center text-sm text-gray-500">
       未找到符合條件的圖層。
     </div>
 
     <table v-else class="w-full text-sm">
       <thead class="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
         <tr>
-          <th class="cursor-pointer px-4 py-3 text-left" @click="toggleSort('name')">
-            名稱
-            <span class="inline-block w-4 text-right">
-              <span v-if="sortField === 'name'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-            </span>
-          </th>
-          <th class="cursor-pointer px-4 py-3 text-left" @click="toggleSort('layerType')">
-            類型
-            <span class="inline-block w-4 text-right">
-              <span v-if="sortField === 'layerType'">{{
-                sortDirection === 'asc' ? '▲' : '▼'
-              }}</span>
-            </span>
-          </th>
-          <th class="cursor-pointer px-4 py-3 text-left" @click="toggleSort('sortOrder')">
-            排序
-            <span class="inline-block w-4 text-right">
-              <span v-if="sortField === 'sortOrder'">{{
-                sortDirection === 'asc' ? '▲' : '▼'
-              }}</span>
-            </span>
-          </th>
-          <th class="cursor-pointer px-4 py-3 text-left" @click="toggleSort('visible')">
-            預設可見性
-            <span class="inline-block w-4 text-right">
-              <span v-if="sortField === 'visible'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-            </span>
-          </th>
-          <th class="cursor-pointer px-4 py-3 text-left" @click="toggleSort('opacity')">
-            透明度
-            <span class="inline-block w-4 text-right">
-              <span v-if="sortField === 'opacity'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-            </span>
-          </th>
+          <th class="w-10 px-4 py-3"></th>
+          <th class="px-4 py-3 text-left">名稱</th>
+          <th class="px-4 py-3 text-left">類型</th>
+          <th class="px-4 py-3 text-left">疊加排序</th>
+          <th class="px-4 py-3 text-left">預設可見性</th>
+          <th class="px-4 py-3 text-left">透明度</th>
           <th class="px-4 py-3 text-center">操作</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-gray-100">
-        <tr v-for="layer in pagedLayers" :key="layer.id" class="hover:bg-gray-50">
+
+      <VueDraggable
+        v-model="localLayers"
+        tag="tbody"
+        handle=".drag-handle"
+        :animation="200"
+        :disabled="saving"
+        class="divide-y divide-gray-100"
+        @start="onDragStart"
+        @end="onDragEnd"
+      >
+        <tr v-for="layer in localLayers" :key="layer.id" class="hover:bg-gray-50">
+          <td class="px-4 py-3">
+            <span
+              class="drag-handle cursor-grab select-none text-lg text-gray-400 active:cursor-grabbing"
+              :class="{ 'opacity-30': saving }"
+              >⠿</span
+            >
+          </td>
           <td class="px-4 py-3 font-medium text-gray-800">{{ layer.name }}</td>
-          <td class="px-4 py-3 text-gray-500">{{ layer.layerType }}</td>
+          <td class="px-4 py-3 text-gray-500">
+            <span
+              class="rounded-full px-2 py-0.5 text-xs"
+              :class="
+                layer.layerType === 'feature'
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'bg-purple-100 text-purple-700'
+              "
+            >
+              {{ layer.layerType }}
+            </span>
+          </td>
           <td class="px-4 py-3 text-gray-500">{{ layer.sortOrder }}</td>
           <td class="px-4 py-3">
             <span
@@ -180,25 +178,23 @@ function setPage(page: number) {
             </button>
           </td>
         </tr>
-      </tbody>
+      </VueDraggable>
     </table>
 
     <div class="flex items-center justify-between border-t px-4 py-3 text-sm text-gray-500">
-      <div>
-        <span>第 {{ currentPage }} / {{ pageCount }} 頁</span>
-      </div>
+      <span>共 {{ total }} 筆　第 {{ page }} / {{ pageCount }} 頁</span>
       <div class="flex items-center gap-2">
         <button
           class="rounded-lg border border-gray-200 bg-white px-3 py-1 text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-          :disabled="currentPage === 1"
-          @click="setPage(currentPage - 1)"
+          :disabled="page === 1"
+          @click="setPage(page - 1)"
         >
           上一頁
         </button>
         <button
           class="rounded-lg border border-gray-200 bg-white px-3 py-1 text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-          :disabled="currentPage === pageCount"
-          @click="setPage(currentPage + 1)"
+          :disabled="page === pageCount"
+          @click="setPage(page + 1)"
         >
           下一頁
         </button>

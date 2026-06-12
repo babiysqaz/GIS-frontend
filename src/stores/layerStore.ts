@@ -12,7 +12,7 @@ export const useLayerStore = defineStore('layer', () => {
     loading.value = true
     error.value = null
     try {
-      layers.value = await layerService.fetchLayers()
+      layers.value = await layerService.fetchAllLayers()
     } catch {
       error.value = '載入圖層失敗'
     } finally {
