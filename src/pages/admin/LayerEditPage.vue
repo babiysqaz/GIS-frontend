@@ -22,7 +22,14 @@ onMounted(async () => {
     if (!layerStore.layers.length) await layerStore.loadLayers()
     const layer = layerStore.layers.find((l) => l.id === layerId.value)
     if (layer) {
-      const { id: _id, createdAt: _c, updatedAt: _u, ...rest } = layer
+      const {
+        id: _id,
+        createdAt: _c,
+        updatedAt: _u,
+        layerType: _lt,
+        sortOrder: _so,
+        ...rest
+      } = layer
       initialData.value = rest
     }
   }

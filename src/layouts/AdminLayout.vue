@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Toast from 'primevue/toast'
 import { useAuth } from '@/composables/useAuth'
 
 const { logout } = useAuth()
@@ -40,6 +39,4 @@ const { logout } = useAuth()
       <RouterView />
     </main>
   </div>
-
-  <Toast />
 </template>

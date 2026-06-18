@@ -4,7 +4,6 @@ import type { LayerFormData } from '@/types/layer'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Checkbox from 'primevue/checkbox'
-import InputNumber from 'primevue/inputnumber'
 import Slider from 'primevue/slider'
 
 const props = defineProps<{
@@ -21,7 +20,6 @@ const defaultForm = (): LayerFormData => ({
   serviceUrl: '',
   visible: false,
   opacity: 1.0,
-  sortOrder: 0,
 })
 
 const form = ref<LayerFormData>(defaultForm())
@@ -109,18 +107,12 @@ function handleSubmit() {
       </div>
     </div>
 
-    <div class="flex gap-4">
-      <div class="flex-1">
-        <label class="mb-1 block text-sm font-medium text-gray-700">疊加排序 *</label>
-        <InputNumber v-model="form.sortOrder" required :min="0" class="w-full" />
-      </div>
-      <div class="flex-1">
-        <label class="mb-1 block text-sm font-medium text-gray-700">
-          透明度 ({{ (form.opacity * 100).toFixed(0) }}%)
-        </label>
-        <div class="flex h-9 items-center pr-2">
-          <Slider v-model="form.opacity" :min="0" :max="1" :step="0.05" class="w-full" />
-        </div>
+    <div>
+      <label class="mb-1 block text-sm font-medium text-gray-700">
+        透明度 ({{ (form.opacity * 100).toFixed(0) }}%)
+      </label>
+      <div class="flex h-9 items-center pr-2">
+        <Slider v-model="form.opacity" :min="0" :max="1" :step="0.05" class="w-full" />
       </div>
     </div>
 

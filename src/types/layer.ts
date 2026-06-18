@@ -30,7 +30,10 @@ export interface Layer {
   updatedAt: string
 }
 
-export type LayerFormData = Omit<Layer, 'id' | 'createdAt' | 'updatedAt' | 'layerType'>
+export type LayerFormData = Omit<
+  Layer,
+  'id' | 'createdAt' | 'updatedAt' | 'layerType' | 'sortOrder'
+>
 
 export interface PaginatedLayersResponse {
   items: Layer[]

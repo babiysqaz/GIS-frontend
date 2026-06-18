@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { VueDraggable } from 'vue-draggable-plus'
+import { computed } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { useLayerStore } from '@/stores/layerStore'
 import { getApiErrorDetail } from '@/services/api'
-import { batchUpdateSortOrder } from '@/services/layerService'
 import type { Layer } from '@/types/layer'
 
 const props = defineProps<{
@@ -25,51 +23,7 @@ const confirm = useConfirm()
 const toast = useToast()
 const layerStore = useLayerStore()
 
-const saving = ref(false)
-const localLayers = ref<Layer[]>([])
-let preDragLayers: Layer[] = []
-
-watch(
-  () => props.layers,
-  (layers) => {
-    localLayers.value = [...layers].sort((a, b) => a.sortOrder - b.sortOrder)
-  },
-  { immediate: true },
-)
-
 const pageCount = computed(() => Math.max(1, Math.ceil(props.total / props.pageSize)))
-
-function onDragStart() {
-  preDragLayers = [...localLayers.value]
-}
-
-async function onDragEnd() {
-  if (preDragLayers.length === 0) return
-
-  const sortOrderValues = preDragLayers.map((l) => l.sortOrder)
-  const changed = localLayers.value
-    .map((layer, index) => ({ id: layer.id, sortOrder: sortOrderValues[index] }))
-    .filter(({ id, sortOrder }) => preDragLayers.find((l) => l.id === id)!.sortOrder !== sortOrder)
-
-  preDragLayers = []
-  if (changed.length === 0) return
-
-  saving.value = true
-  try {
-    await batchUpdateSortOrder(changed)
-    toast.add({ severity: 'success', summary: '排序已儲存', life: 2000 })
-    const newOrders = new Map(changed.map((c) => [c.id, c.sortOrder]))
-    localLayers.value = localLayers.value.map((l) => ({
-      ...l,
-      sortOrder: newOrders.get(l.id) ?? l.sortOrder,
-    }))
-  } catch {
-    toast.add({ severity: 'error', summary: '排序儲存失敗', detail: '請稍後再試', life: 5000 })
-    localLayers.value = preDragLayers
-  } finally {
-    saving.value = false
-  }
-}
 
 function confirmDelete(layer: Layer) {
   confirm.require({
@@ -105,41 +59,23 @@ function setPage(value: number) {
 <template>
   <div class="overflow-hidden rounded-xl bg-white shadow-sm border">
     <div v-if="loading" class="p-6 text-center text-sm text-gray-500">載入中...</div>
-    <div v-else-if="!localLayers.length" class="p-6 text-center text-sm text-gray-500">
+    <div v-else-if="!layers.length" class="p-6 text-center text-sm text-gray-500">
       未找到符合條件的圖層。
     </div>
 
     <table v-else class="w-full text-sm">
       <thead class="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
         <tr>
-          <th class="w-10 px-4 py-3"></th>
           <th class="px-4 py-3 text-left">名稱</th>
           <th class="px-4 py-3 text-left">類型</th>
-          <th class="px-4 py-3 text-left">疊加排序</th>
           <th class="px-4 py-3 text-left">預設可見性</th>
           <th class="px-4 py-3 text-left">透明度</th>
           <th class="px-4 py-3 text-center">操作</th>
         </tr>
       </thead>
 
-      <VueDraggable
-        v-model="localLayers"
-        tag="tbody"
-        handle=".drag-handle"
-        :animation="200"
-        :disabled="saving"
-        class="divide-y divide-gray-100"
-        @start="onDragStart"
-        @end="onDragEnd"
-      >
-        <tr v-for="layer in localLayers" :key="layer.id" class="hover:bg-gray-50">
-          <td class="px-4 py-3">
-            <span
-              class="drag-handle cursor-grab select-none text-lg text-gray-400 active:cursor-grabbing"
-              :class="{ 'opacity-30': saving }"
-              >⠿</span
-            >
-          </td>
+      <tbody class="divide-y divide-gray-100">
+        <tr v-for="layer in layers" :key="layer.id" class="hover:bg-gray-50">
           <td class="px-4 py-3 font-medium text-gray-800">{{ layer.name }}</td>
           <td class="px-4 py-3 text-gray-500">
             <span
@@ -153,7 +89,6 @@ function setPage(value: number) {
               {{ layer.layerType }}
             </span>
           </td>
-          <td class="px-4 py-3 text-gray-500">{{ layer.sortOrder }}</td>
           <td class="px-4 py-3">
             <span
               :class="layer.visible ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'"
@@ -178,7 +113,7 @@ function setPage(value: number) {
             </button>
           </td>
         </tr>
-      </VueDraggable>
+      </tbody>
     </table>
 
     <div class="flex items-center justify-between border-t px-4 py-3 text-sm text-gray-500">
